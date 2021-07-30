@@ -64,11 +64,21 @@ def get_cached_cities_weather():
     if len(cached_cities) == 0:
         return make_response(jsonify(error="No cities found"), 404)
 
-    # converting deque data into dictionary to be json serializable
-    response_data = [
-        dict(city=city.get("city"), temperature=city.get("temperature"))
-        for city in cached_cities
-    ]
+    max_number = request.args.get("max_number")
+    if max_number and max_number.isdigit() and int(max_number) <= len(cached_cities):
+        max_number = int(max_number)
+        cities = [cached_cities[i] for i in range(max_number)]
+
+        response_data = [
+            dict(city=city.get("city"), temperature=city.get("temperature"))
+            for city in cities
+        ]
+    else:
+        # converting deque data into dictionary to be json serializable
+        response_data = [
+            dict(city=city.get("city"), temperature=city.get("temperature"))
+            for city in cached_cities
+        ]
     return make_response(jsonify(data=response_data), 200)
 
 
