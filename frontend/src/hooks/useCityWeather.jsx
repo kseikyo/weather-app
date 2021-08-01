@@ -6,6 +6,23 @@ export const useCityWeather = searchInput => {
   const [error, setError] = useState(null);
   const [cityWeather, setCityWeather] = useState('');
 
+  const getCityWeather = useCallback(async () => {
+    if (!!!searchInput) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const result = await api.get(`/weather/${searchInput}`);
+      const { data } = result.data;
+
+      setCityWeather(data);
+    } catch (err) {
+      const { error } = err.response.data.data;
+      setError(error);
+    }
+    setLoading(false);
+  }, [setCityWeather, searchInput]);
+
   useEffect(() => {
     try {
       setError(null);
@@ -26,24 +43,7 @@ export const useCityWeather = searchInput => {
         clearTimeout(delayDebounceFn);
       };
     } catch (_) {}
-  }, [searchInput]);
-
-  const getCityWeather = useCallback(async () => {
-    if (!!!searchInput) {
-      return;
-    }
-    try {
-      setLoading(true);
-      const result = await api.get(`/weather/${searchInput}`);
-      const { data } = result.data;
-
-      setCityWeather(data);
-    } catch (err) {
-      const { error } = err.response.data.data;
-      setError(error);
-    }
-    setLoading(false);
-  }, [setCityWeather, searchInput]);
+  }, [searchInput, getCityWeather]);
 
   return { data: cityWeather, loading, error, setCityWeather, getCityWeather };
 };

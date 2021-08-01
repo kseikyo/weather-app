@@ -6,6 +6,22 @@ export const useLatestSearched = ({ maxNumber = 5, searchInput }) => {
   const [error, setError] = useState(null);
   const [latestSearched, setLatestSearched] = useState([]);
 
+  const getLatestSearched = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await api.get('/weather', {
+        params: { max: maxNumber },
+      });
+      const { data } = result.data;
+
+      setLatestSearched(data);
+    } catch (err) {
+      setError(err.response.data);
+    } finally {
+      setLoading(false);
+    }
+  }, [setLatestSearched, maxNumber]);
+
   useEffect(() => {
     try {
       setError(null);
@@ -26,23 +42,7 @@ export const useLatestSearched = ({ maxNumber = 5, searchInput }) => {
         clearTimeout(delayLatestSearch);
       };
     } catch (_) {}
-  }, [searchInput]);
-
-  const getLatestSearched = useCallback(async () => {
-    try {
-      setLoading(true);
-      const result = await api.get('/weather', {
-        params: { max: maxNumber },
-      });
-      const { data } = result.data;
-
-      setLatestSearched(data);
-    } catch (err) {
-      setError(err.response.data);
-    } finally {
-      setLoading(false);
-    }
-  }, [setLatestSearched, maxNumber]);
+  }, [searchInput, getLatestSearched]);
 
   return { data: latestSearched, loading, error, getLatestSearched };
 };
