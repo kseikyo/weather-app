@@ -56,7 +56,9 @@ def get_city_weather(city_name):
 
         response = (jsonify(data), response.get("cod"))
         # adding response data to cache
-        cached_cities.appendleft(response[0].get_json())
+        resJson = response[0].get_json()
+        if resJson not in cached_cities:
+            cached_cities.appendleft(resJson)
 
         return response
     else:
