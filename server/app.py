@@ -79,13 +79,21 @@ def get_cached_cities_weather():
         cities = [cached_cities[i] for i in range(max_number)]
 
         response_data = [
-            dict(city=city.get("city"), temperature=city.get("temperature"))
+            dict(
+                city=city.get("city"),
+                temperature=city.get("temperature"),
+                description=city.get("description"),
+            )
             for city in cities
         ]
     else:
         # converting deque data into dictionary to be json serializable
         response_data = [
-            dict(city=city.get("city"), temperature=city.get("temperature"))
+            dict(
+                city=city.get("city"),
+                temperature=city.get("temperature"),
+                description=city.get("description"),
+            )
             for city in cached_cities
         ]
     return make_response(jsonify(data=response_data), 200)
