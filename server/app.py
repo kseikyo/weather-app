@@ -1,10 +1,12 @@
 import requests
 from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
 from flask_caching import Cache
 from config import *
 from constants import *
 
 app = Flask(__name__)
+CORS(app)
 
 app.config.from_mapping(cache_config)
 cache = Cache(app)
@@ -22,7 +24,9 @@ def get_city_weather_request(city_name):
     city_weather = get_city_weather(city_name)
     res, status_code = city_weather[0], city_weather[1]
 
-    return make_response(res, status_code)
+    json_data = res.get_json()
+
+    return make_response(jsonify(data=json_data), status_code)
 
 
 def get_city_weather(city_name):
@@ -39,11 +43,16 @@ def get_city_weather(city_name):
             response.get("cod"),
         )
 
+    description = response.get("weather", {})[0].get("description")
     # get current temperature and convert it into Celsius
     current_temperature = response.get("main", {}).get("temp")
     if current_temperature:
-        current_temperature_celsius = round(current_temperature - 273.15, 2)
-        data = {"city": city_name.title(), "temperature": current_temperature_celsius}
+        current_temperature_celsius = round(current_temperature - 273.15, 0)
+        data = {
+            "city": city_name.title(),
+            "temperature": current_temperature_celsius,
+            "description": description,
+        }
 
         response = (jsonify(data), response.get("cod"))
         # adding response data to cache
